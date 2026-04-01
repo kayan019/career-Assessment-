@@ -309,7 +309,7 @@ def rule_based_recommendation(skills, interests, education):
     return json.dumps([
     {
         "career": title,
-        "cutoff": "N/A",
+        "cutoff": get_cutoff(title),
         "description": desc
     }
     for title, desc in unique[:5]
