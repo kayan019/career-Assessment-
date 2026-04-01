@@ -217,53 +217,55 @@ def try_openai(prompt):
 
 
 def rule_based_recommendation(skills, interests, education):
-    """GUARANTEED FALLBACK: Always returns meaningful career advice based on inputs."""
+    """GUARANTEED FALLBACK: Always returns meaningful career advice based on inputs, with proper cutoffs."""
+    # Career mapping: (title, description, kuccps_course_name)
     career_map = {
         "technology": [
-            ("Software Engineer", "Design and build software applications and systems."),
-            ("Data Scientist", "Analyse data to help organisations make better decisions."),
-            ("Cybersecurity Analyst", "Protect computer systems from digital attacks."),
-            ("AI/ML Engineer", "Build machine learning models and intelligent systems."),
-            ("Web Developer", "Create websites and web-based applications."),
+            ("Software Engineer", "Design and build software applications and systems.", "Bachelor of Science in Computer Science"),
+            ("Data Scientist", "Analyse data to help organisations make better decisions.", "Bachelor of Science in Data Science"),
+            ("Cybersecurity Analyst", "Protect computer systems from digital attacks.", "Bachelor of Science in Cyber Security"),
+            ("AI/ML Engineer", "Build machine learning models and intelligent systems.", "Bachelor of Science in Artificial Intelligence"),
+            ("Web Developer", "Create websites and web-based applications.", "Bachelor of Science in Information Technology"),
         ],
         "business": [
-            ("Business Analyst", "Identify business needs and recommend solutions."),
-            ("Entrepreneur", "Start and run your own business venture."),
-            ("Accountant / CPA", "Manage financial records and statements."),
-            ("Marketing Manager", "Plan and execute marketing strategies."),
-            ("Finance Manager", "Oversee financial planning and budgeting."),
+            ("Business Analyst", "Identify business needs and recommend solutions.", "Bachelor of Commerce"),
+            ("Entrepreneur", "Start and run your own business venture.", "Bachelor of Business Administration"),
+            ("Accountant / CPA", "Manage financial records and statements.", "Bachelor of Commerce"),
+            ("Marketing Manager", "Plan and execute marketing strategies.", "Bachelor of Marketing"),
+            ("Finance Manager", "Oversee financial planning and budgeting.", "Bachelor of Finance"),
         ],
         "healthcare": [
-            ("Medical Doctor", "Diagnose and treat illnesses and injuries."),
-            ("Nurse", "Provide patient care and support medical teams."),
-            ("Pharmacist", "Dispense medicines and counsel patients."),
-            ("Clinical Officer", "Provide medical services in clinical settings."),
-            ("Public Health Officer", "Promote community health and prevent disease."),
+            ("Medical Doctor", "Diagnose and treat illnesses and injuries.", "Bachelor of Medicine and Surgery"),
+            ("Nurse", "Provide patient care and support medical teams.", "Bachelor of Nursing"),
+            ("Pharmacist", "Dispense medicines and counsel patients.", "Bachelor of Pharmacy"),
+            ("Clinical Officer", "Provide medical services in clinical settings.", "Diploma in Clinical Medicine"),
+            ("Public Health Officer", "Promote community health and prevent disease.", "Bachelor of Public Health"),
         ],
         "arts": [
-            ("Graphic Designer", "Create visual content for digital and print media."),
-            ("Journalist / Media", "Report news and tell stories for the public."),
-            ("Teacher / Educator", "Teach and inspire the next generation."),
-            ("Architect", "Design buildings and urban spaces."),
-            ("Content Creator", "Produce digital content for social platforms."),
+            ("Graphic Designer", "Create visual content for digital and print media.", "Bachelor of Arts in Design"),
+            ("Journalist / Media", "Report news and tell stories for the public.", "Bachelor of Mass Communication"),
+            ("Teacher / Educator", "Teach and inspire the next generation.", "Bachelor of Education"),
+            ("Architect", "Design buildings and urban spaces.", "Bachelor of Architecture"),
+            ("Content Creator", "Produce digital content for social platforms.", "Bachelor of Arts in Media Studies"),
         ],
     }
+
     skill_map = {
         "problem solving": [
-            ("Engineer", "Apply science and math to solve real-world problems."),
-            ("Research Analyst", "Investigate data and present findings."),
+            ("Engineer", "Apply science and math to solve real-world problems.", "Bachelor of Science in Engineering"),
+            ("Research Analyst", "Investigate data and present findings.", "Bachelor of Science in Statistics"),
         ],
         "communication": [
-            ("Public Relations Officer", "Manage an organisation's public image."),
-            ("Teacher", "Educate and communicate knowledge to students."),
+            ("Public Relations Officer", "Manage an organisation's public image.", "Bachelor of Mass Communication"),
+            ("Teacher", "Educate and communicate knowledge to students.", "Bachelor of Education"),
         ],
         "creativity": [
-            ("UI/UX Designer", "Design user-friendly digital interfaces."),
-            ("Creative Director", "Lead creative projects and campaigns."),
+            ("UI/UX Designer", "Design user-friendly digital interfaces.", "Bachelor of Arts in Design"),
+            ("Creative Director", "Lead creative projects and campaigns.", "Bachelor of Arts in Design"),
         ],
         "leadership": [
-            ("Project Manager", "Plan and lead projects to completion."),
-            ("Operations Manager", "Oversee day-to-day business operations."),
+            ("Project Manager", "Plan and lead projects to completion.", "Bachelor of Business Administration"),
+            ("Operations Manager", "Oversee day-to-day business operations.", "Bachelor of Business Administration"),
         ],
     }
 
@@ -289,33 +291,25 @@ def rule_based_recommendation(skills, interests, education):
 
     if not unique:
         unique = [
-            ("Software Engineer", "Build digital products and solutions."),
-            ("Business Analyst", "Bridge business needs and technical solutions."),
-            ("Teacher / Educator", "Share knowledge and inspire students."),
-            ("Accountant", "Manage finances for individuals or organisations."),
-            ("Public Health Officer", "Promote health and prevent diseases in communities."),
+            ("Software Engineer", "Build digital products and solutions.", "Bachelor of Science in Computer Science"),
+            ("Business Analyst", "Bridge business needs and technical solutions.", "Bachelor of Commerce"),
+            ("Teacher / Educator", "Share knowledge and inspire students.", "Bachelor of Education"),
+            ("Accountant", "Manage finances for individuals or organisations.", "Bachelor of Commerce"),
+            ("Public Health Officer", "Promote health and prevent diseases in communities.", "Bachelor of Public Health"),
         ]
 
-    lines = [
-        f"Based on your interest in {interests or 'various fields'} and strength in {skills or 'multiple skills'}, here are your recommended career paths:\n"
-    ]
-    for i, (title, desc) in enumerate(unique[:5], 1):
-        lines.append(f"{i}. {title}\n   {desc}")
-
-    lines.append(f"\nEducation level: {education or 'KCSE Student'}")
-    lines.append("Tip: Explore these careers further through KUCCPS, university open days, or online platforms like Coursera and edX.")
-
     print("[INFO] Used: Rule-based fallback")
+
+    # Return JSON array with correct cutoff lookup
     return json.dumps([
-    {
-        "career": title,
-        "cutoff": get_cutoff(title),
-        "description": desc
-    }
-    for title, desc in unique[:5]
-])
-
-
+        {
+            "career": title,
+            "cutoff": get_cutoff(course),
+            "description": desc
+        }
+        for title, desc, course in unique[:5]
+    ])
+    
 def get_recommendation(prompt, skills="", interests="", education=""):
     """Try Groq → OpenRouter → HuggingFace → OpenAI → Rule-based (always works)."""
     result = try_groq(prompt)
