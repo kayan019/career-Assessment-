@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>KCSE Career Recommendation Results</title>
+    <!-- Toastify Notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Auth Guard -->
+    <script>
+        if (!localStorage.getItem("userEmail")) {
+            window.location.href = "login.html";
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            padding: 40px;
+            color: #333;
+        }
+
+        /* Page title */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        /* Result cards */
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Top 4 Cards Grid Layout */
+        .top-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .top-cards-grid .card {
+            margin-bottom: 0;
+            /* Remove default margin when in grid */
+            height: 100%;
+            /* Make cards even height */
+        }
+
+        /* Lists */
+        ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Strong subjects highlight */
+        .strong-subject {
+            font-weight: 600;
+            color: #16a34a;
+        }
+
+        /* Section headings inside cards */
+        .card b {
+            color: #444;
+        }
+
+        /* Pathway highlight */
+        #pathway {
+            font-size: 18px;
+        }
+
+        /* Course colors */
+        span[style*="green"] {
+            font-weight: 500;
+        }
+
+        span[style*="blue"] {
+            font-weight: 500;
+        }
+
+        span[style*="orange"] {
+            font-weight: 500;
+        }
+
+        /* Responsive layout */
+        @media (min-width:900px) {
+
+            body {
+                max-width: 1100px;
+                margin: auto;
+            }
+
+            .card {
+                padding: 30px;
+            }
+
+        }
+
+        @media (max-width:900px) {
+            .top-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Small screens */
+        @media (max-width:600px) {
+
+            body {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+        }
+
+        /* Recommendation Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            /* Prevent chopping rows in half for PDF */
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .table-cutoff {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .table-description {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+            padding-left: 0;
+            list-style-position: inside;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Professional Navigation Header -->
+    <div
+        style="background: #ffffff; padding: 10px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div
+                style="width: 35px; height: 35px; background: #4f46e5; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                <span id="resInitial">U</span>
+            </div>
+            <div>
+                <span style="font-size: 0.85em; color: #666; display: block;">Signed in as</span>
+                <span id="resDisplayName" style="font-weight: 600; color: #333;">Student</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <button onclick="downloadPDF()"
+                style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">
+                Download PDF
+            </button>
+            <button onclick="logout()"
+                style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Results Area -->
+    <div id="capture-area" style="max-width: 1100px; margin: 20px auto; padding: 0 40px 40px 40px;">
+        <h1 style="margin-bottom: 30px;">KCSE Career Recommendation Results</h1>
+
+        <div class="top-cards-grid">
+            <div class="card" id="best7"></div>
+            <div class="card" id="summary"></div>
+            <div class="card" id="pathway"></div>
+            <div class="card" id="courses"></div>
+        </div>
+
+        <!-- Professional Graph Card -->
+        <div class="card graph-card">
+            <h3 style="margin-bottom: 15px; color: #4f46e5;">Performance Overview</h3>
+            <p style="font-size: 0.85em; color: #666; margin-bottom: 20px;">Detailed analysis of your KCSE subject
+                performance.</p>
+            <div style="height: 300px; position: relative;">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+
+        <h2>Recommended Careers</h2>
+        <div id="resultBox"></div>
+        <div id="aiResults"></div>
+
+    </div> <!-- End capture-area -->
+
+    <script>
+        // Start loading on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            loadAiRecommendation();
+            renderLocalResults();
+        });
+
+        /* ===============================
+           PDF DOWNLOAD LOGIC
+        ================================ */
+        function downloadPDF() {
+            window.scrollTo(0, 0);
+            setTimeout(() => {
+                const element = document.getElementById('capture-area');
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: 'KCSE_Career_Recommendations.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                };
+
+                Toastify({
+                    text: "Preparing PDF Report...",
+                    duration: 3000,
+                    style: { background: "linear-gradient(to right, #4f46e5, #7c3aed)" }
+                }).showToast();
+
+                html2pdf().set(opt).from(element).save();
+            }, 100);
+        }
+
+        /* --- Spinner Styling --- */
+        if (!document.getElementById("spinner-style")) {
+            const style = document.createElement("style");
+            style.id = "spinner-style";
+            style.innerHTML = `.spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+            document.head.appendChild(style);
+        }
+
+        const gradeToPointsMap = {
+            "A": 12, "A-": 11, "B+": 10, "B": 9, "B-": 8,
+            "C+": 7, "C": 6, "C-": 5, "D+": 4, "D": 3, "D-": 2, "E": 1
+        };
+
+        function gradeToPoints(grade) {
+            return gradeToPointsMap[grade] || 0;
+        }
+
+        function pointsToGrade(p) {
+            if (p >= 11.5) return "A";
+            if (p >= 10.5) return "A-";
+            if (p >= 9.5) return "B+";
+            if (p >= 8.5) return "B";
+            if (p >= 7.5) return "B-";
+            if (p >= 6.5) return "C+";
+            if (p >= 5.5) return "C";
+            if (p >= 4.5) return "C-";
+            if (p >= 3.5) return "D+";
+            if (p >= 2.5) return "D";
+            if (p >= 1.5) return "D-";
+            return "E";
+        }
+
+        async function loadAiRecommendation() {
+            const userName = localStorage.getItem("userName") || "Student";
+            document.getElementById("resDisplayName").textContent = userName;
+            document.getElementById("resInitial").textContent = userName.charAt(0).toUpperCase();
+
+            const resultBox = document.getElementById("resultBox");
+            const profileRaw = localStorage.getItem("studentProfile");
+            const profile = profileRaw ? JSON.parse(profileRaw) : null;
+
+            if (!profile) {
+                resultBox.innerHTML = '<em style="color:#888">No profile data found. Please complete the questionnaire.</em>';
+                return;
+            }
+
+            resultBox.innerHTML = '<div style="display:flex; align-items:center; gap:10px; color:#666; margin: 15px 0;"><div class="spinner"></div><span>AI Career Path Analysis in progress...</span></div>';
+
+            try {
+                const response = await fetch("/api/recommend", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ profile: profile })
+                });
+
+                const data = await response.json();
+                let rawContent = (data.result || data.recommendation || "").trim();
+
+                if (rawContent.startsWith("```")) {
+                    rawContent = rawContent.replace(/^```json/, "").replace(/```$/, "").trim();
+                }
+
+                const recommendations = JSON.parse(rawContent);
+
+                if (Array.isArray(recommendations)) {
+                    let tableHtml = `<table><thead><tr><th>Career</th><th>Cut-off</th><th>Description</th></tr></thead><tbody>`;
+                    recommendations.forEach(r => {
+                        tableHtml += `<tr><td><b>${r.career}</b></td><td class="table-cutoff">${r.cutoff}</td><td class="table-description">${r.description}</td></tr>`;
+                    });
+                    tableHtml += `</tbody></table>`;
+                    resultBox.innerHTML = tableHtml;
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                resultBox.innerHTML = '<em style="color:#f43f5e">Unable to load AI Career recommendations. Rule-based suggestions are still visible below.</em>';
+            }
+        }
+
+        function renderLocalResults() {
+            const profileRaw = localStorage.getItem("studentProfile");
+            const profile = profileRaw ? JSON.parse(profileRaw) : null;
+            if (!profile) return;
+
+            const grades = profile.grades || {};
+            const getSubjectData = (id) => {
+                const grade = grades[id];
+                return (grade && grade !== "-- Select Grade --") ? { id, grade, points: gradeToPoints(grade) } : null;
+            };
+
+            const compulsory = ["english", "kiswahili", "math"].map(getSubjectData).filter(s => s !== null);
+            const sciences = ["bio", "chem", "phy"].map(getSubjectData).filter(s => s !== null).sort((a, b) => b.points - a.points).slice(0, 2);
+            const others = ["history", "geo", "comp", "business", "agri", "home", "re"].map(getSubjectData).filter(s => s !== null).sort((a, b) => b.points - a.points).slice(0, 2);
+
+            const best7Subjects = [...compulsory, ...sciences, ...others];
+            if (best7Subjects.length === 0) return;
+
+            const totalPoints = best7Subjects.reduce((sum, s) => sum + s.points, 0);
+            const meanPoints = totalPoints / 7;
+            const meanGrade = pointsToGrade(meanPoints);
+
+            // Display Results
+            const top2IdsHighlight = [...best7Subjects].sort((a, b) => b.points - a.points).slice(0, 2).map(s => s.id);
+            
+            document.getElementById("best7").innerHTML = `
+                <b>Best 7 Subjects:</b>
+                <ul style="list-style:none; padding-left:0; margin-top:10px;">
+                    ${best7Subjects.map(s => {
+                        const isTop = top2IdsHighlight.includes(s.id);
+                        const style = isTop ? 'color: #16a34a; font-weight: 600;' : 'color: #475569;';
+                        return `<li style="margin-bottom:8px; ${style}">
+                            &bull; ${s.id.toUpperCase()}: ${s.grade} (${s.points} pts)
+                        </li>`;
+                    }).join('')}
+                </ul>`;
+            document.getElementById("summary").innerHTML = `<b>Calculation Summary:</b><br>Total Points: ${totalPoints}<br>Mean Points: ${meanPoints.toFixed(2)}<br><b>Mean Grade: ${meanGrade}</b>`;
+
+            let pText = meanPoints >= 6.5 ? "🎓 University Degree" : (meanPoints >= 2.5 ? "🏫 College Diploma" : "🛠 Vocational/Artisan");
+            document.getElementById("pathway").innerHTML = `<b>Recommended Pathway:</b><br>${pText} Pathway`;
+
+            // --- Detailed Course Mapping Logic ---
+            const subjectCourses = {
+                english: {
+                    degree: ["Bachelor of Arts in Communication & Media", "Bachelor of Education (Arts)"],
+                    diploma: ["Diploma in Communication & Media", "Diploma in Teaching"],
+                    certificate: ["Certificate in ICT & Communication Skills"]
+                },
+                kiswahili: {
+                    degree: ["Bachelor of Arts in Kiswahili & Literature", "Bachelor of Education (Arts)"],
+                    diploma: ["Diploma in Kiswahili", "Diploma in Teaching"],
+                    certificate: ["Certificate in Kiswahili Language"]
+                },
+                math: {
+                    degree: ["Bachelor of Science in Actuarial Science", "Math & CS", "Data Science"],
+                    diploma: ["Diploma in Mathematical Sciences", "Diploma in ICT"],
+                    certificate: ["Certificate in Mathematical & ICT Skills"]
+                },
+                bio: { degree: ["Medicine", "Nursing", "Pharmacy", "Biochemistry"], diploma: ["Diploma in Clinical Medicine"], certificate: ["TVET Health Courses"] },
+                chem: { degree: ["Chemical Engineering", "Pharmacy", "Biochemistry"], diploma: ["Diploma in Chemical Tech"], certificate: ["Cert in Chemical Tech"] },
+                phy: { degree: ["Engineering (Civil / Electrical)", "Architecture", "Physical Sciences"], diploma: ["Diploma in Electrical Engineering"], certificate: ["Cert in Electrical Eng"] },
+                history: { degree: ["Law", "B.A. (Criminology / Sociology)", "International Relations"], diploma: ["Diploma in Social Work"], certificate: ["Cert in Social Work"] },
+                geo: { degree: ["Geography", "Environmental Studies", "Urban Planning"], diploma: ["Diploma in Environment"], certificate: ["Cert in Community Service"] },
+                comp: { degree: ["Computer Science", "Software Engineering", "Cybersecurity"], diploma: ["Diploma in IT"], certificate: ["Cert in Computer Apps"] },
+                business: { degree: ["Accounting (CPA)", "Bachelor of Commerce", "Economics"], diploma: ["Diploma in Business Management"], certificate: ["Cert in Business Management"] },
+                agri: { degree: ["Agribusiness", "Agriculture & Bio-Systems Eng"], diploma: ["Diploma in Agriculture"], certificate: ["TVET Agri-Business"] },
+                re: { degree: ["Social Work", "Philosophy / Theology", "Community Dev"], diploma: ["Diploma in Chaplaincy"], certificate: ["Cert in Social Work"] }
+            };
+
+            const sortedForSug = [...best7Subjects].sort((a, b) => b.points - a.points);
+            const top2 = sortedForSug.slice(0, 2);
+            const top2Ids = top2.map(s => s.id);
+
+            function getLevel() {
+                if (meanPoints >= 6.5) return 'degree';
+                if (meanPoints >= 4.5) return 'diploma';
+                return 'certificate';
+            }
+            const lvl = getLevel();
+
+            function getColored(c, type) {
+                const colors = { degree: 'green', diploma: 'blue', certificate: 'orange' };
+                return `<span style="color:${colors[type] || 'black'}; font-weight:500;">${c}</span>`;
+            }
+
+            // Pick 2 Strong Courses from Top 2 Subjects
+            let strongCourses = [];
+            top2.forEach(s => {
+                const courses = subjectCourses[s.id] ? subjectCourses[s.id][lvl] : [];
+                if (courses.length > 0) strongCourses.push(courses[0]);
+            });
+
+            // Clean up duplicates
+            strongCourses = [...new Set(strongCourses)].slice(0, 2);
+
+            let coursesHtml = `<b>Suggested Core Courses:</b><ul>`;
+            strongCourses.forEach(c => coursesHtml += `<li>${getColored(c, lvl)}</li>`);
+            coursesHtml += `</ul>`;
+
+            document.getElementById("courses").innerHTML = coursesHtml;
+
+            // Graph Rendering
+            const ctx = document.getElementById("chart").getContext("2d");
+            try {
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: best7Subjects.map(s => s.id.toUpperCase()),
+                        datasets: [{
+                            label: "Points",
+                            data: best7Subjects.map(s => s.points),
+                            backgroundColor: "rgba(79, 70, 229, 0.7)",
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 12 } }, plugins: { legend: { display: false } } }
+                });
+            } catch (chartErr) {
+                console.error("Chart Error:", chartErr);
+            }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = "login.html"; }
+    </script>
+
+</body>
+
+</html>

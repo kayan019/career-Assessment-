@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Career Path</title>
+    <!-- Toastify Notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        /* ===== Modern Login CSS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        form label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        form input[type="email"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 12px 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        form input:focus {
+            border-color: #6C63FF;
+            box-shadow: 0 0 6px rgba(108, 99, 255, 0.3);
+            outline: none;
+        }
+
+        .show-password {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .show-password label {
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .agree-box {
+            font-size: 0.8rem;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .agree-box a {
+            color: #6C63FF;
+            text-decoration: none;
+        }
+
+        .agree-box a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:first-of-type {
+            background: linear-gradient(90deg, #6C63FF, #9C6CFF);
+            color: #fff;
+        }
+
+        button:first-of-type:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 99, 255, 0.35);
+        }
+
+        button:last-of-type {
+            background: #eee;
+            color: #555;
+        }
+
+        button:last-of-type:hover {
+            background: #ddd;
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Welcome to Career Path</h1>
+    </header>
+
+    <div class="container">
+        <form id="loginForm">
+            <!-- Email -->
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="example@mail.com" required>
+
+            <!-- Password -->
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" required minlength="6">
+
+            <!-- Options -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <div class="show-password" style="margin-bottom:0">
+                    <input type="checkbox" id="showPassword">
+                    <label for="showPassword">Show</label>
+                </div>
+                <a href="forgot-password.html" style="font-size: 0.8rem; color: #6C63FF; text-decoration: none;">Forgot
+                    Password?</a>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="agree-box">
+                <input type="checkbox" id="agree" required>
+                <label for="agree" style="display:inline; margin-left: 5px;">I agree to the <a href="#">Terms and
+                        Conditions</a></label>
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit">Log In</button>
+            <button type="button" onclick="location.href='register.html'"
+                style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;">Create Account</button>
+        </form>
+    </div>
+
+    <script>
+        // Show Password Toggle
+        const passwordField = document.getElementById("password");
+        document.getElementById("showPassword").addEventListener("change", function () {
+            passwordField.type = this.checked ? "text" : "password";
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Login button validation
+            function validateForm() {
+                const email = document.getElementById("email").value;
+                const password = passwordField.value;
+                const agree = document.getElementById("agree") ? document.getElementById("agree").checked : true;
+
+                if (!agree) {
+                    Toastify({ text: "You must agree to the terms!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+                    return false;
+                }
+
+                if (!email || !password) {
+                    Toastify({ text: "Please fill in all fields!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+                    return false;
+                }
+
+                if (password.length < 6) {
+                    Toastify({ text: "Password must be at least 6 characters long!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+                    return false;
+                }
+                return true;
+            }
+
+            if (!validateForm()) return;
+
+            const email = document.getElementById("email").value;
+            const password = passwordField.value;
+
+            try {
+                const resp = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await resp.json();
+                if (resp.ok) {
+                    // Success: Save user info and redirect
+                    localStorage.setItem("userEmail", data.user.email);
+                    localStorage.setItem("userName", data.user.first_name);
+
+                    Toastify({
+                        text: `Welcome back, ${data.user.first_name}!`,
+                        duration: 3000,
+                        style: { background: "linear-gradient(to right, #4f46e5, #7c3aed)" }
+                    }).showToast();
+
+                    setTimeout(() => window.location.href = "questionnaire.html", 1000);
+                } else {
+                    Toastify({
+                        text: data.error || "Login failed.",
+                        duration: 3000,
+                        style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" }
+                    }).showToast();
+                }
+            } catch (err) {
+                console.error(err);
+                Toastify({ text: "Connection error!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+            }
+        });
+    </script>
+</body>
+
+</html>

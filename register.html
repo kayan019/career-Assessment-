@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <!-- Toastify Notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== Modern Compact CSS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        header h1 {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="password"],
+        form select {
+            flex: 1;
+            padding: 10px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        form input:focus,
+        form select:focus {
+            border-color: #6C63FF;
+            box-shadow: 0 0 6px rgba(108, 99, 255, 0.3);
+            outline: none;
+        }
+
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .password-wrapper label {
+            font-size: 0.85rem;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .password-wrapper input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(90deg, #6C63FF, #9C6CFF);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 99, 255, 0.35);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .optional {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+            }
+
+            header h1 {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Register</h1>
+    </header>
+
+    <div class="container">
+        <form id="registerForm">
+            <!-- First & Second Name inline -->
+            <div class="form-row">
+                <input type="text" id="first_name" placeholder="First Name *" required>
+                <input type="text" id="surname" placeholder="Surname *" required>
+            </div>
+
+            <!-- Email -->
+            <input type="email" id="email" placeholder="Email *" required>
+
+            <!-- Password -->
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Password *" required minlength="6">
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="password-wrapper">
+                <input type="password" id="confirm_password" placeholder="Confirm Password *" required minlength="6">
+            </div>
+
+            <!-- Education -->
+            <select id="education" required>
+                <option value="">Select Education Level *</option>
+                <option value="High School">High School</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Degree">Degree</option>
+            </select>
+
+            <button type="submit">Sign Up</button>
+            <p style="text-align: center; margin-top: 15px; font-size: 0.9em; color: #666;">
+                Already have an account? <a href="login.html"
+                    style="color: #6C63FF; text-decoration: none; font-weight: 600;">Log In</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const first_name = document.getElementById("first_name").value;
+            const surname = document.getElementById("surname").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirm_password = document.getElementById("confirm_password").value;
+            const education = document.getElementById("education").value;
+
+            if (password.length < 6) {
+                Toastify({ text: "Password must be at least 6 characters long!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+                return;
+            }
+
+            if (password !== confirm_password) {
+                Toastify({ text: "Passwords do not match!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+                return;
+            }
+
+            try {
+                const resp = await fetch("/api/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ first_name, surname, email, password, education })
+                });
+
+                const data = await resp.json();
+                if (resp.ok) {
+                    Toastify({
+                        text: "Account created successfully! Redirecting...",
+                        duration: 3000,
+                        style: { background: "linear-gradient(to right, #4f46e5, #7c3aed)" }
+                    }).showToast();
+                    setTimeout(() => window.location.href = "login.html", 1500);
+                } else {
+                    Toastify({
+                        text: data.error || "Registration failed.",
+                        duration: 3000,
+                        style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" }
+                    }).showToast();
+                }
+            } catch (err) {
+                console.error(err);
+                Toastify({ text: "Connection error!", duration: 3000, style: { background: "linear-gradient(to right, #f43f5e, #fb7185)" } }).showToast();
+            }
+        });
+    </script>
+    <script>
+        function registerUser() {
+            alert("Registration feature can be connected to DB later");
+        }
+    </script>
+
+</body>
+
+</html>

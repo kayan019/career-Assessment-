@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Career Assessment | Career Recommendation</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Toastify Notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            --bg: #f1f5f9;
+            /* Fallback */
+            --gradient: linear-gradient(135deg, #f5f7ff 0%, #ede9fe 100%);
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #475569;
+            --border: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--gradient);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* --- Header --- */
+        .nav-header {
+            background: white;
+            padding: 12px 5%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* --- Layout Container --- */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h1 {
+            font-size: 2.2rem;
+            color: #0f172a;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+        }
+
+        .step-num {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        /* --- Form Elements --- */
+        h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            margin: 24px 0 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            background: #fff;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .subject-row {
+            display: grid;
+            grid-template-columns: 30px 1.5fr 1fr;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: #fdfdfd;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .subject-row label {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        .subject-row select {
+            margin-bottom: 0;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        /* --- Custom Styles --- */
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e0e7ff;
+            color: var(--primary);
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-section {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Auth Guard -->
+    <script>
+        if (!localStorage.getItem("userEmail")) {
+            window.location.href = "login.html";
+        }
+    </script>
+
+    <!-- Professional Navigation Header -->
+    <div class="nav-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div
+                style="width: 35px; height: 35px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                <span id="userInitial">U</span>
+            </div>
+            <div>
+                <span style="font-size: 0.85em; color: var(--text-light); display: block;">Dashboard</span>
+                <span id="userDisplayName" style="font-weight: 600; color: var(--text);">Student</span>
+            </div>
+        </div>
+        <button onclick="logout()"
+            style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+            Logout
+        </button>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="page-title">
+            <h1>Career Assessment</h1>
+            <p style="color: var(--text-light);">Complete your profile to unlock AI-powered career recommendations.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- STEP 1: ACADEMIC DATA -->
+            <div class="card">
+                <h2><span class="step-num">1</span> Academic Data <span class="badge">KCSE Based</span></h2>
+
+                <h3>Compulsory Subjects</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>English</label>
+                        <select id="english" class="grade compulsory"></select>
+                    </div>
+                    <div>
+                        <label>Kiswahili</label>
+                        <select id="kiswahili" class="grade compulsory"></select>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label>Mathematics</label>
+                    <select id="math" class="grade compulsory"></select>
+                </div>
+
+                <h3>Sciences <small>(Select 2 or 3)</small></h3>
+                <div class="subject-row">
+                    <input type="checkbox" class="science-check" value="bio">
+                    <label>Biology</label>
+                    <select id="bio" class="grade science" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="science-check" value="chem">
+                    <label>Chemistry</label>
+                    <select id="chem" class="grade science" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="science-check" value="phy">
+                    <label>Physics</label>
+                    <select id="phy" class="grade science" disabled></select>
+                </div>
+
+                <h3>Humanities / Applied <small>(Select 2 or 3)</small></h3>
+                <div class="subject-row">
+                    <input type="checkbox" class="humanity-check" value="history">
+                    <label>History</label>
+                    <select id="history" class="grade humanity" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="humanity-check" value="geo">
+                    <label>Geography</label>
+                    <select id="geo" class="grade humanity" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="humanity-check" value="comp">
+                    <label>Computer Studies</label>
+                    <select id="comp" class="grade humanity" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="humanity-check" value="business">
+                    <label>Business Studies</label>
+                    <select id="business" class="grade humanity" disabled></select>
+                </div>
+                <div class="subject-row">
+                    <input type="checkbox" class="humanity-check" value="re">
+                    <label>Religious Ed (RE)</label>
+                    <select id="re" class="grade humanity" disabled></select>
+                </div>
+            </div>
+
+            <!-- STEP 2: DISCOVERY -->
+            <div class="card">
+                <h2><span class="step-num">2</span> Personal Discovery</h2>
+                <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px;">Your interests help our AI
+                    find the most compatible workplace for you.</p>
+
+                <label>Main Interest Field</label>
+                <select id="interest">
+                    <option value="">-- Select Interest --</option>
+                    <option>Technology</option>
+                    <option>Business</option>
+                    <option>Healthcare</option>
+                    <option>Arts</option>
+                </select>
+
+                <label>Your Strongest Soft Skill</label>
+                <select id="skill">
+                    <option value="">-- Select Skill --</option>
+                    <option>Problem Solving</option>
+                    <option>Communication</option>
+                    <option>Creativity</option>
+                    <option>Leadership</option>
+                </select>
+
+                <label>Preferred Work Style</label>
+                <select id="workstyle">
+                    <option value="">-- Select Style --</option>
+                    <option>Collaborative Teamwork</option>
+                    <option>Independent Professional</option>
+                </select>
+
+                <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <button onclick="submitAssessment()" class="btn-submit">Generate Career Analysis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* KCSE grades */
+        const grades = ["", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E"];
+
+        /* Populate all grade selects */
+        document.querySelectorAll(".grade").forEach(select => {
+            grades.forEach(g => {
+                let opt = document.createElement("option");
+                opt.value = g;
+                opt.textContent = g === "" ? "-- Select Grade --" : g;
+                select.appendChild(opt);
+            });
+        });
+
+        /* Enable grade dropdown only if subject is selected */
+        function toggleSubject(checkboxClass) {
+            document.querySelectorAll(checkboxClass).forEach(box => {
+                const updateState = () => {
+                    const select = document.getElementById(box.value);
+                    if (select) {
+                        select.disabled = !box.checked;
+                        if (!box.checked) {
+                            select.value = "";
+                        }
+                    }
+                };
+                // Run once on init to handle browser refresh/autocomplete
+                updateState();
+                box.addEventListener("change", updateState);
+            });
+        }
+
+        /* Initialize Page */
+        window.addEventListener("DOMContentLoaded", () => {
+            // Display user name and initial
+            const userName = localStorage.getItem("userName") || "Student";
+            const userEmail = localStorage.getItem("userEmail");
+            
+            document.getElementById("userDisplayName").textContent = userName;
+            document.getElementById("userInitial").textContent = userName.charAt(0).toUpperCase();
+
+            // Sync subject states
+            toggleSubject(".science-check");
+            toggleSubject(".humanity-check");
+        });
+
+        // Logout Function
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        /* SUBMIT */
+        function submitAssessment() {
+
+            // Validate compulsory
+            const compulsory = document.querySelectorAll(".compulsory");
+            for (let c of compulsory) {
+                if (c.value === "") {
+                    Toastify({ text: "Please fill all compulsory subjects.", style: { background: "#ef4444" } }).showToast();
+                    return;
+                }
+            }
+
+            // Validate sciences
+            const sciences = document.querySelectorAll(".science-check:checked");
+            if (sciences.length < 2 || sciences.length > 3) {
+                Toastify({ text: "Select 2 or 3 science subjects.", style: { background: "#ef4444" } }).showToast();
+                return;
+            }
+
+            // Validate humanities
+            const humanities = document.querySelectorAll(".humanity-check:checked");
+            if (humanities.length < 2 || humanities.length > 3) {
+                Toastify({ text: "Select 2 or 3 humanities subjects.", style: { background: "#ef4444" } }).showToast();
+                return;
+            }
+            // Validate Discovery (Step 2)
+            const skills = document.getElementById("skill").value;
+            const interests = document.getElementById("interest").value;
+            const workstyle = document.getElementById("workstyle").value;
+
+            if (!skills || !interests || !workstyle) {
+                Toastify({ text: "Please complete the Personal Discovery section.", style: { background: "#fb7185" } }).showToast();
+                return;
+            }
+            
+            const education = "KCSE Student";
+
+            // Gather full profile
+            const profile = {
+                grades: {},
+                preferences: { skills, interests, workstyle }
+            };
+
+            // Compulsory
+            ["english", "kiswahili", "math"].forEach(id => {
+                profile.grades[id] = document.getElementById(id).value;
+            });
+
+            // Optional
+            document.querySelectorAll("input[type='checkbox']:checked").forEach(box => {
+                profile.grades[box.value] = document.getElementById(box.value).value;
+            });
+
+            // Save full profile to localStorage
+            localStorage.setItem("studentProfile", JSON.stringify(profile));
+
+            // AI recommendation will be fetched on the results page
+            localStorage.removeItem("careerResult"); // Clear any old results
+
+            // Redirect to results page
+            Toastify({
+                text: "Processing Results...",
+                duration: 3000,
+                style: { background: "linear-gradient(to right, #4f46e5, #7c3aed)" }
+            }).showToast();
+
+            setTimeout(() => window.location.href = "results.html", 1000);
+        }
+    </script>
+
+</body>
+
+</html>
