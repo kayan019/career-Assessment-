@@ -306,7 +306,14 @@ def rule_based_recommendation(skills, interests, education):
     lines.append("Tip: Explore these careers further through KUCCPS, university open days, or online platforms like Coursera and edX.")
 
     print("[INFO] Used: Rule-based fallback")
-    return "\n".join(lines)
+    return json.dumps([
+    {
+        "career": title,
+        "cutoff": "N/A",
+        "description": desc
+    }
+    for title, desc in unique[:5]
+])
 
 
 def get_recommendation(prompt, skills="", interests="", education=""):
